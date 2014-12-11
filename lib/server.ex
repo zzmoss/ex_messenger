@@ -15,7 +15,7 @@ defmodule ExMessenger.Server do
     {:reply, {:ok, userlist}, newusers}
   end
 
-  def handle_call({:disconnect, nick}, {pid, _}, users) do
+  def handle_call({:disconnect, nick}, {_, _}, users) do
     newusers = users |> HashDict.delete nick
     {:reply, :ok, newusers}
   end
