@@ -1,11 +1,16 @@
-language: erlang
+language: elixir
+elixir:
+  - 1.0.4
 otp_release:
-    - 17.1
-before_install:
-    - git clone https://github.com/elixir-lang/elixir
-    - cd elixir && git checkout v1.0.2 && make && cd ..
+  - 17.4
 before_script:
-    - export PATH=`pwd`/elixir/bin:$PATH
-    - mix local.hex --force
-    - mix deps.get
-script: "MIX_ENV=test mix do deps.get, test"
+  # Set download location
+  - export PLT_FILENAME=elixir-${TRAVIS_ELIXIR_VERSION}_${TRAVIS_OTP_RELEASE}.plt
+  - export PLT_LOCATION=/home/travis/$PLT_FILENAME
+  # Download PLT from danielberkompas/travis_elixir_plts on Github
+  # Store in $PLT_LOCATION
+  - wget -O $PLT_LOCATION https://raw.github.com/danielberkompas/travis_elixir_plts/master/$PLT_FILENAME
+script:
+  - mix test
+  - dialyzer --no_check_plt --plt $PLT_LOCATION --no_native _build/test/lib/ex_messenger/ebin
+after_success: "mix do compile, coveralls.travis"
